@@ -1,0 +1,442 @@
+---
+title: "Data Simulation using R"
+author: "Dr Peter E McKenna | CABS | SoSS Doctoral Centre"
+date: "2023-11-02"
+format: 
+  revealjs:
+    slide-number: true
+    logo: sossdoc-logo.png
+    css: logo.css
+    footer: <https://github.com/petermckenna/Data-Simulation>
+    theme: [default, my_quarto_theme.scss]
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+
+# markdown formatting
+knitr::opts_chunk$set(echo = TRUE)
+
+# load packages
+library(tidyverse)
+library(corrr)
+
+```
+
+# Before we get started...
+
+![](quarto.png)
+
+# What's the deal with data simulation?
+
+-   Simulating data is a really useful skill for research and teaching.
+-   For research, it can help you to plan and prepare analysis scripts
+    (e.g., for pre-registration), instead of waiting until data
+    collection is complete.
+    -   This in turn can help you select the correct statistical test.
+-   For teaching, you can create topic-relevant datasets for specific
+    courses.
+-   More generally, creating and working with simulated data helps to
+    develop your understanding of statistical concepts.
+
+# OK, so what is today's session going to cover?
+
+-   I'm going to show you the syntax and calculations for simulating
+    bivariate (i.e., includes two variables) data using R.
+-   This is not a demo, but a showcase. I will be holding future
+    workshops intended to teach the process outlined here.
+-   The footnote is a link to this lesson's materials - feel free to use
+    it.
+-   I also provide links to related content on the final slide if you
+    wish to explore this topic further.
+
+# Simulating Univariate data
+
+-   Data along a normal distribution can be simulated using the `rnorm`
+    function, like so:
+
+```{r rnorm example}
+
+set.seed(385) # seed a random number for reproducibility
+
+# Say we wanted to simulate response time to a cogntive test
+# where the mean = 1000, the SD = 50, from 150 participants
+
+rt_sim <- 
+  tibble(                         # create data table object
+  control_rt = rnorm(mean = 1000, # state the mean 
+                     sd = 500,    # provide the sd
+                     n = 150))    # supply the sample size
+
+```
+
+------------------------------------------------------------------------
+
+-   Here's our data plotted in a histogram.
+
+```{r rnorm plot}
+
+# generate the histogram with ggplot2
+ggplot(data = rt_sim,                   # specify data source
+       mapping = aes(x = control_rt)) + # specify x and y mapping
+  geom_histogram() +                    # add histogram layer
+  labs(x = "\nResponse time (ms)")      # supply axis labels
+       
+```
+
+# How **NOT** To Simulate Bivariate data {.smaller}
+
+-   However, to simulate the distribution of two related variables you
+    can't just run `rnorm` twice as you will end up with two variables
+    that are unrelated, with a correlation of (near) zero.
+
+```{r rnorm unrelated}
+
+set.seed(456) # for reproducibility
+
+# simulate two separate datasets
+data <- 
+  tibble(
+  control_rt = rnorm(mean = 1000, 
+                     sd = 500,
+                     n = 150),
+  treatment_rt = rnorm(mean = 1200, 
+                       sd = 700,
+                       n = 150))
+
+# run a correlation
+cor(data$control_rt,   # Pearson is the default
+    data$treatment_rt)
+
+
+```
+
+# Our first attempt at simulating multivariate data
+
+-   Let's start by simulating some data representing hypothetical humans
+    and their height and weight.
+-   We know these things are correlated.
+-   What we need to be able to simulate are the **means**, **standard
+    deviations**, and the **correlations between these two variables**.
+-   I'm using a dataset of heights and weights - link on final slide.
+
+------------------------------------------------------------------------
+
+```{r read in the data, echo=TRUE}
+
+# read in the data
+# make sure you include the full file name and type (e.g., .csv) in the quotes
+handw <- 
+  read_csv("~/OneDrive - Heriot-Watt University/Teaching/MSc Programmes/MSc Social & Behavioural Research Methods/Courses/C91ED/Lectures/RStudio/data/heights_and_weights.csv", 
+           col_types = "dd")                # specify that both cols are `double` type
+
+
+# peek into heights and weights dataset
+glimpse(handw)
+
+```
+
+# Scatter plot the heights and weights data {.smaller}
+
+```{r plot handw, echo=TRUE}
+
+# generate the scatter plot with ggplot2
+ggplot(data = handw,                                    # specify data source
+       mapping = aes(x = height_in, y = weight_lbs)) +  # specify x and y axis
+  geom_point(alpha = .6) +                              # modify transparency of points
+  labs(x = "\nHeight (inches)",                         # supply axis label names
+       y = "Weight (pounds)\n")
+
+
+```
+
+-   It is evident from the scatter plot of the distribution that the
+    relationship between heights and weights is not quite linear, so
+    let's log transform the variables.
+
+# Scatter plot of the log of `handw` data {.smaller}
+
+```{r log transform the handw data}
+
+# add log transformed vectors to dataset
+handw_log <-
+  handw %>%
+  mutate(hlog = log(height_in),  # create new variable `hlog` which is the log of height_in
+         wlog = log(weight_lbs)) # create new variable `wlog` which is the log of weight_lbs
+
+# generate a scatter plot of the log data
+ggplot(data = handw_log,                      # don't forget to enter the new dataset              
+       mapping = aes(x = hlog, y = wlog)) +  
+  geom_point(alpha = .6) +                              
+  labs(x = "\nLog(Height)",                           
+       y = "log(Weight)\n")
+
+
+```
+
+# Using the `MASS::mvrnorm` command
+
+-   The `MASS` package provides a function `mvronrm` which stands for
+    multivariate + `rnorm`.
+-   `MASS` is a large package in R, so for efficiency let's only load
+    the required components by using the argument `MASS::mvrnorm`
+    instead of `library("MASS")`.
+-   This is also a handy way to proceed as there are some annoying
+    package conflicts between `dplyr` and `MASS` that we want to avoid.
+
+# `MASS::mvrnorm` arguments
+
+-   The three arguments to take note of are:
+    -   `n` = number of samples required
+    -   `mu` = a vector giving the means of the variables
+    -   `Sigma` = a positive-definite symmetric matrix specifying the
+        covariance of the variables
+-   *Positive-Definite Symmetric Matrix*
+    -   A covariance matrix (also known as the variance-covariance
+        matrix) specifying the variances of the individual variables and
+        their inter-relationships.
+    -   It is essentially a multi-dimensional version of standard
+        deviation.
+
+## Out of interest, what about the relationship between 2+ variables?
+
+For a multivariate distribution with more than two variables you need
+
+-   The means for all of the variables.
+-   Their standard deviations.
+-   All possible pairwise correlations between the variables.
+
+# Matrix Calculations for the *Sigma* argument
+
+A covariance matrix can be calculated using the following formula:
+
+$$
+\sum = \begin{pmatrix}\sigma_x^2 & \rho_{xy}\sigma_x\sigma_y \\ \rho_{yx}\sigma_y\sigma_x & \sigma_y^2 \end{pmatrix}
+$$
+
+-   $\sigma_x^2$ = squared SD for $x$.
+-   $\sigma_y^2$ = squared SD $y$.
+-   $\rho_{xy}\sigma_x\sigma_y$ = the co-variances (i.e., the
+    correlation multiplied by the two standard deviations, shown in the
+    off-diagonal.
+-   It is worth saying here that the **covariance is just the
+    correlation times the product of the two standard deviations.**
+
+# Gathering the statistics
+
+-   Let's start by gathering the statistics we need to simulate the data
+    using `MASS::mvrnorm`.
+-   Remember, we need the
+    -   `mean`
+    -   `sd`
+    -   `Sigma`
+-   We will continue with the log of the data, as the relationship is
+    more linear.
+
+------------------------------------------------------------------------
+
+```{r generate required statistics}
+
+# calculate means and sd
+handw_log %>%
+  summarise(mean_h = mean(hlog),
+            sd_h = sd(hlog),
+            mean_w = mean(wlog),
+            sd_w = sd(wlog)) %>%
+  mutate_if(is.numeric, round, digits = 2) # round to 2 decimal places
+
+# calculate correlation
+cor(handw_log$hlog, handw_log$wlog)
+
+
+```
+
+# Calculation output
+
+-   $\bar{x} = 4.11, \sigma_x = 0.26$ (mean and SD of log height)
+-   $\bar{y} = 4.74, \sigma_y = 0.65$ (mean and SD of log weight)
+-   $\rho_{xy} = 0.96$ (correlation between the two)
+
+# Calculating *Sigma* for `MASS:mvrnorm`
+
+-   We now have all of the information we need to simulate the height
+    and weight of, let's say 500 humans.
+-   One last piece in the puzzle is to create the covariance matrix to
+    supply to the `Sigma` argument.
+-   Let's plug in the output values we calculated previously into the
+    covariance matrix formula.
+
+# Enter values into the formula
+
+$$
+\sum = \begin{pmatrix}\sigma_x^2 & \rho_{xy}\sigma_x\sigma_y \\ \rho_{yx}\sigma_y\sigma_x & \sigma_y^2 \end{pmatrix}
+$$
+
+-   So plugging in the values we got above, our covariance matrix should
+    be
+
+$$\sum = \begin{pmatrix}
+.26^2 & (.96)(.26)(.65) \\
+(.96)(.65)(.26) & .65^2
+\end{pmatrix} = \begin{pmatrix}
+.067 & .162\\
+.162 & .423
+\end{pmatrix}$$
+
+# Create covariance matrix for the `MASS::mvrnorm` argument in R
+
+```{r define covariance matrix}
+
+# define and store covariances
+my_cov <- 
+  .96 * .26 * .65 # log of correlation times hlog_sd times wlog_sd
+
+# use the matrix function to define our sigma
+my_sigma <-
+  matrix(c(.26^2, my_cov, 
+           my_cov, .65^2), 
+         ncol = 2)
+
+my_sigma          # print the matrix
+
+
+```
+
+## Some notes about the `matrix` function
+
+-   The first argument is a vector of values, which we created using
+    `c()`.
+-   The `ncol` argument specifies how many columns the matrix should
+    have.
+-   `matrix` fills the elements of the matrix by column by column,
+    rather than row by row.
+-   You can change this behaviour if desired by changing the byrow
+    argument to `byrow = TRUE`.
+
+# Simulate data {.smaller}
+
+OK, so now we have `my_sigma` we're ready to use `MASS::mvrnorm`. Let's
+test it by creating 6 synthetic humans.
+
+```{r simulate data}
+
+set.seed(62) # for reproducibility
+
+# pass the names vector c(height = 4.11, weight = 4.74)
+# for mu gives us column names in the output
+log_ht_wt <-
+  MASS::mvrnorm(n = 6,                 # our 6 synthetic humans 
+                mu = c(height = 4.11,  # log mean of height 
+                       weight = 4.74), # log mean of weight
+                Sigma = my_sigma)      # our positive-definitive matrix
+
+# view the output
+log_ht_wt
+
+```
+
+------------------------------------------------------------------------
+
+-   `MASS::mvrnorm` returns a matrix with a row for each simulated
+    human, with the first column representing the log height and the
+    second representing the log weight.
+-   But the log heights and weights are not very useful to us, so let's
+    transform them back using the `exp()`, which is the inverse of
+    `log()` transform.
+
+```{r convert log back with exp}
+
+exp(log_ht_wt)
+
+# remember height is measured in inches
+# weight is measured in pounds
+
+```
+
+------------------------------------------------------------------------
+
+-   Note, that there will be some unusual observations generated, with
+    strangely high or low values for height and weight.
+-   However, you can rest easy knowing that the weight/height
+    relationship will be preserved.
+
+# Plotting Simulated Data against actual data {.smaller}
+
+Finally, let's simulate a group of 500 humans, convert their values from
+the log space to the real space (e.g., inches and pounds), and plot a
+comparison between the original data and our simulated data.
+
+```{r create sim dataset}
+
+# simulate new humans
+new_humans <-
+  MASS::mvrnorm(n = 500,
+                mu = c(height_in = 4.11,
+                       weight_lbs = 4.74),
+                Sigma = my_sigma) %>%
+  exp() %>%                     # back-transform from log space to real space
+  as_tibble() %>%               # make a tibble for plotting
+  mutate(type = "simulated")    # vector labelling data as simulated
+
+# combine real and simulated datasets
+# Note: `handw` is a table containing data fom heights_and_weights.csv
+all_data <-
+  bind_rows(handw %>%
+              mutate(type = "real"), # vector labelling data as real
+              new_humans)
+
+```
+
+------------------------------------------------------------------------
+
+```{r plot sim data}
+
+# plot the data
+ggplot(all_data,
+       aes(x = height_in, 
+           y = weight_lbs)) +
+  geom_point(aes(colour = type), 
+             alpha = .6)
+
+```
+
+# Save the simulated dataset
+
+```{r}
+
+# write data as a csv into "data" folder
+write_csv(all_data, "data/simulated_handw.csv")
+
+
+```
+
+# Round-up and conclusion
+
+-   This has been a whistle-stop tour of R, but hopefully you get a
+    sense of how the syntax is formatted.
+-   In the process of showing you how to simulate bivariate data you
+    become more familiar with covariance and matrix calculations.
+-   This is just an example of how data simulation can develop
+    statistical expertise.
+-   The end result is something you can use for research (e.g., your
+    analysis script) or for teaching your class (e.g., the dataset).
+
+---
+
+![](experiment-results.jpg)
+
+# Thank you!
+
+*Inspiration for today's session on Data Simulation:*[Learning
+Statistical Models Through Simulation in R: Correlation and
+Regression](https://psyteachr.github.io/stat-models-v1/correlation-and-regression.html)
+
+[PsyPag & MSCP-Section Simulation Summer
+School](https://simsummerschool.github.io/)
+
+[Data Simulation
+Workshops](https://debruine.github.io/data-sim-workshops/)
+
+[Heights and weights dataset](https://www.geogebra.org/m/RRprACv4)
