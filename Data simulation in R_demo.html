@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Dr Peter E McKenna | CABS | SoSS Doctoral Centre">
+<meta name="dcterms.date" content="2023-11-10">
+
+<title>Data Simulation using R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="Data simulation in R_demo_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Data simulation in R_demo_files/libs/quarto-html/quarto.js"></script>
+<script src="Data simulation in R_demo_files/libs/quarto-html/popper.min.js"></script>
+<script src="Data simulation in R_demo_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Data simulation in R_demo_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Data simulation in R_demo_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Data simulation in R_demo_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Data simulation in R_demo_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Data simulation in R_demo_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Data simulation in R_demo_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="logo.css">
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data Simulation using R</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Dr Peter E McKenna | CABS | SoSS Doctoral Centre </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 10, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="who-am-i" class="level2">
+<h2 class="anchored" data-anchor-id="who-am-i">Who am I?</h2>
+<p><img src="images/Serena2017.png" class="absolute img-fluid" data-left="250" data-bottom="42"></p>
+</section>
+<section id="why-is-data-simulation-important" class="level1">
+<h1>Why is data simulation important?</h1>
+<div class="incremental">
+<ul class="incremental">
+<li>Simulating data is a really useful skill for developing your research skills and statistical knowledge <span class="citation" data-cites="Hardin_2015">(<a href="#ref-Hardin_2015" role="doc-biblioref">Hardin et al. 2015</a>)</span>.</li>
+<li>If you simulate data akin to your to-be-conducted-experiment data, you can plan and prepare analysis scripts before data collection has started.</li>
+<li>By virtue of this, simulating data can help you select the correct statistical test for analysis.</li>
+<li>Creating and working with simulated data helps to develop your understanding of statistical concepts and data analysis.</li>
+</ul>
+<p style="font-size: 15px;">
+Hardin, J., Hoerl, R., Horton, N. J., Nolan, D., Baumer, B., Hall-Holt, O., Murrell, P., Peng, R., Roback, P., Temple Lang, D., &amp; Ward, M. D. (2015). Data Science in Statistics Curricula: Preparing Students to “Think with Data”. The American Statistician, 69(4), 343–353. https://doi.org/10.1080/00031305.2015.1077729
+</p>
+</div>
+</section>
+<section id="ok-so-what-is-todays-session-going-to-cover" class="level1">
+<h1>OK, so what is today’s session going to cover?</h1>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li>How to create a project in R</li>
+<li>How to read data into R</li>
+<li>How to simulate bivariate (i.e., includes two variables) data using R.</li>
+</ul>
+</div><div class="column" style="width:&quot;50%;">
+<ul>
+<li>The session will be a mixture of lecture slides and live coding demonstrations.</li>
+<li><strong>The footnote is a link to this lesson’s Padlet. Please open this in a browser for the lesson</strong>.</li>
+<li>I also provide links to the slides and related content on the final slide if you wish to explore this topic further.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="setting-up-an-r-project" class="level1">
+<h1>Setting up an R project</h1>
+<p>In RStudio, do the following in sequence:</p>
+<div class="incremental">
+<ul class="incremental">
+<li>Click on the “New project” button.</li>
+<li>Then, click on the first option in the list “New Directory”.</li>
+<li>Then, click “New Project”.</li>
+<li>Then you are given the opportunity to name your project and select which folder it should be stored in. First in the “Directory name” box, type “Data Simulation using R”.</li>
+<li>Then, click “Browse” then “New folder” then in the popup box name the new folder “SoSS PGR Workshop” and click “OK” then “Choose”. This will store your new project called SoSS PGR Workshop (and this folder is where you’ll store all SoSS PGR R projects).</li>
+<li>Finally, click “Create project”.</li>
+</ul>
+</div>
+<section id="packages-for-session" class="level2">
+<h2 class="anchored" data-anchor-id="packages-for-session">Packages for session</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">'tidyverse'</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">'corrr'</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="simulating-univariate-data" class="level1">
+<h1>Simulating Univariate data</h1>
+<ul>
+<li>Data along a normal distribution can be simulated using the <code>rnorm</code> function, like so:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">385</span>) <span class="co"># seed a random number for reproducibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Say we wanted to simulate response time to a cogntive test</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># where the mean = 1000, the SD = 50, from 150 participants</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>rt_sim <span class="ot">&lt;-</span> </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(                         <span class="co"># create data table object</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rt =</span> <span class="fu">rnorm</span>(<span class="at">mean =</span> <span class="dv">1000</span>, <span class="co"># state the mean </span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sd =</span> <span class="dv">500</span>,    <span class="co"># provide the sd</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">n =</span> <span class="dv">150</span>))    <span class="co"># supply the sample size</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+<ul>
+<li>Here’s our data plotted in a histogram.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate the histogram with ggplot2</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> rt_sim,                   <span class="co"># specify data source</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> control_rt)) <span class="sc">+</span> <span class="co"># specify x and y mapping</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="sc">+</span>                    <span class="co"># add histogram layer</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">Response time (ms)"</span>)      <span class="co"># supply axis labels</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Data-simulation-in-R_demo_files/figure-html/rnorm%20plot-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="how-not-to-simulate-bivariate-data" class="level1 smaller">
+<h1 class="smaller">How <strong>NOT</strong> To Simulate Bivariate data</h1>
+<ul>
+<li>However, to simulate the distribution of two related variables you can’t just run <code>rnorm</code> twice as you will end up with two variables that are unrelated, with a correlation of (near) zero.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate two separate datasets</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rt =</span> <span class="fu">rnorm</span>(<span class="at">mean =</span> <span class="dv">1000</span>, </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sd =</span> <span class="dv">500</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">n =</span> <span class="dv">150</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">treatment_rt =</span> <span class="fu">rnorm</span>(<span class="at">mean =</span> <span class="dv">1200</span>, </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">sd =</span> <span class="dv">700</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">n =</span> <span class="dv">150</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># run a correlation</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(data<span class="sc">$</span>control_rt,   <span class="co"># Pearson is the default</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    data<span class="sc">$</span>treatment_rt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.0373358</code></pre>
+</div>
+</div>
+</section>
+<section id="qa-and-discussion-break" class="level1">
+<h1>Q&amp;A and discussion break</h1>
+<p><img src="images/why-bugs.png" class="img-fluid"></p>
+</section>
+<section id="our-first-attempt-at-simulating-multivariate-data" class="level1">
+<h1>Our first attempt at simulating multivariate data</h1>
+<ul>
+<li>Let’s start by simulating some data representing hypothetical humans and their height and weight.</li>
+<li>We know these things are correlated.</li>
+<li>What we need to be able to simulate are the <strong>means</strong>, <strong>standard deviations</strong>, and the <strong>correlations between these two variables</strong>.</li>
+<li>I’m using a dataset of heights and weights - link on final slide.</li>
+</ul>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># make sure you include the full file name and type (e.g., .csv) in the quotes</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>handw <span class="ot">&lt;-</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">"data/heights_and_weights.csv"</span>, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">col_types =</span> <span class="st">"dd"</span>)                <span class="co"># specify that both cols are `double` type</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># peek into heights and weights dataset</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(handw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 475
+Columns: 2
+$ height_in  &lt;dbl&gt; 63, 67, 71, 71, 56, 67, 65, 74, 64, 62, 60, 47, 38, 67, 67,…
+$ weight_lbs &lt;dbl&gt; 130, 169, 178, 225, 98, 204, 145, 180, 150, 136, 110, 80, 3…</code></pre>
+</div>
+</div>
+</section>
+<section id="scatter-plot-the-heights-and-weights-data" class="level1 smaller">
+<h1 class="smaller">Scatter plot the heights and weights data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate the scatter plot with ggplot2</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> handw,                                    <span class="co"># specify data source</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> height_in, <span class="at">y =</span> weight_lbs)) <span class="sc">+</span>  <span class="co"># specify x and y axis</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">6</span>) <span class="sc">+</span>                              <span class="co"># modify transparency of points</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">Height (inches)"</span>,                         <span class="co"># supply axis label names</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Weight (pounds)</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Data-simulation-in-R_demo_files/figure-html/plot%20handw-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>It is evident from the scatter plot of the distribution that the relationship between heights and weights is not quite linear, so let’s log transform the variables.</li>
+</ul>
+</section>
+<section id="scatter-plot-of-the-log-of-handw-data" class="level1 smaller">
+<h1 class="smaller">Scatter plot of the log of <code>handw</code> data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add log transformed vectors to dataset</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>handw_log <span class="ot">&lt;-</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  handw <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hlog =</span> <span class="fu">log</span>(height_in),  <span class="co"># create new variable `hlog` which is the log of height_in</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">wlog =</span> <span class="fu">log</span>(weight_lbs)) <span class="co"># create new variable `wlog` which is the log of weight_lbs</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># generate a scatter plot of the log data</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> handw_log,                      <span class="co"># don't forget to enter the new dataset              </span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> hlog, <span class="at">y =</span> wlog)) <span class="sc">+</span>  </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">6</span>) <span class="sc">+</span>                              </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">Log(Height)"</span>,                           </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"log(Weight)</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Data-simulation-in-R_demo_files/figure-html/log%20transform%20the%20handw%20data-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="using-the-massmvrnorm-command" class="level1">
+<h1>Using the <code>MASS::mvrnorm</code> command</h1>
+<ul>
+<li>The <code>MASS</code> package provides a function <code>mvronrm</code> which stands for multivariate + <code>rnorm</code>.</li>
+<li><code>MASS</code> is a large package in R, so for efficiency let’s only load the required components by using the argument <code>MASS::mvrnorm</code> instead of <code>library("MASS")</code>.</li>
+<li>This is also a handy way to proceed as there are some annoying package conflicts between <code>dplyr</code> and <code>MASS</code> that we want to avoid.</li>
+</ul>
+</section>
+<section id="massmvrnorm-arguments" class="level1">
+<h1><code>MASS::mvrnorm</code> arguments</h1>
+<ul>
+<li>The three arguments to take note of are:
+<ul>
+<li><code>n</code> = number of samples required</li>
+<li><code>mu</code> = a vector giving the means of the variables</li>
+<li><code>Sigma</code> = a positive-definite symmetric matrix specifying the covariance of the variables</li>
+</ul></li>
+<li><em>Positive-Definite Symmetric Matrix</em>
+<ul>
+<li>A covariance matrix (also known as the variance-covariance matrix) specifying the variances of the individual variables and their inter-relationships.</li>
+<li>It is essentially a multi-dimensional version of standard deviation.</li>
+</ul></li>
+</ul>
+</section>
+<section id="out-of-interest-what-about-the-relationship-between-2-variables" class="level1">
+<h1>Out of interest, what about the relationship between 2+ variables?</h1>
+<p>For a multivariate distribution with more than two variables you need</p>
+<ul>
+<li>The means for all of the variables.</li>
+<li>Their standard deviations.</li>
+<li>All possible pairwise correlations between the variables.</li>
+</ul>
+</section>
+<section id="matrix-calculations-for-the-sigma-argument" class="level1">
+<h1>Matrix Calculations for the <em>Sigma</em> argument</h1>
+<p>A covariance matrix can be calculated using the following formula:</p>
+<p><span class="math display">\[
+\sum = \begin{pmatrix}\sigma_x^2 &amp; \rho_{xy}\sigma_x\sigma_y \\ \rho_{yx}\sigma_y\sigma_x &amp; \sigma_y^2 \end{pmatrix}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\sigma_x^2\)</span> = squared SD for <span class="math inline">\(x\)</span>.</li>
+<li><span class="math inline">\(\sigma_y^2\)</span> = squared SD <span class="math inline">\(y\)</span>.</li>
+<li><span class="math inline">\(\rho_{xy}\sigma_x\sigma_y\)</span> = the co-variances (i.e., the correlation multiplied by the two standard deviations, shown in the off-diagonal.</li>
+<li>It is worth reiterating here that the <strong>covariance is just the correlation times the product of the two standard deviations.</strong></li>
+</ul>
+</section>
+<section id="gathering-the-relevant-statistics" class="level1">
+<h1>Gathering the relevant statistics</h1>
+<ul>
+<li>Let’s start by gathering the statistics we need to simulate the data using <code>MASS::mvrnorm</code>.</li>
+<li>Remember, we need the
+<ul>
+<li><code>mean</code></li>
+<li><code>sd</code></li>
+<li><code>Sigma</code></li>
+</ul></li>
+<li>We will continue with the log of the data, as the relationship is more linear.</li>
+</ul>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate means and sd</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>handw_log <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_h =</span> <span class="fu">mean</span>(hlog),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_h =</span> <span class="fu">sd</span>(hlog),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_w =</span> <span class="fu">mean</span>(wlog),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_w =</span> <span class="fu">sd</span>(wlog)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, round, <span class="at">digits =</span> <span class="dv">2</span>) <span class="co"># round to 2 decimal places</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  mean_h  sd_h mean_w  sd_w
+   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
+1   4.11  0.26   4.74  0.65</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate correlation</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(handw_log<span class="sc">$</span>hlog, handw_log<span class="sc">$</span>wlog)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9615714</code></pre>
+</div>
+</div>
+</section>
+<section id="calculation-output" class="level1 larger">
+<h1 class="larger">Calculation output</h1>
+<ul>
+<li><span class="math inline">\(\bar{x} = 4.11, \sigma_x = 0.26\)</span> (mean and SD of log height)</li>
+<li><span class="math inline">\(\bar{y} = 4.74, \sigma_y = 0.65\)</span> (mean and SD of log weight)</li>
+<li><span class="math inline">\(\rho_{xy} = 0.96\)</span> (correlation between the two)</li>
+</ul>
+</section>
+<section id="calculating-sigma-for-massmvrnorm" class="level1">
+<h1>Calculating <em>Sigma</em> for <code>MASS:mvrnorm</code></h1>
+<ul>
+<li>We now have all of the information we need to simulate the height and weight of, let’s say 500 humans.</li>
+<li>One last piece in the puzzle is to create the covariance matrix to supply to the <code>Sigma</code> argument.</li>
+<li>Let’s plug in the output values we calculated previously into the covariance matrix formula.</li>
+</ul>
+</section>
+<section id="enter-values-into-the-formula" class="level1 larger">
+<h1 class="larger">Enter values into the formula</h1>
+<p><span class="math display">\[
+\sum = \begin{pmatrix}\sigma_x^2 &amp; \rho_{xy}\sigma_x\sigma_y \\ \rho_{yx}\sigma_y\sigma_x &amp; \sigma_y^2 \end{pmatrix}
+\]</span></p>
+<ul>
+<li>So plugging in the values we got above, our covariance matrix should be</li>
+</ul>
+<p><span class="math display">\[\sum = \begin{pmatrix}
+.26^2 &amp; (.96)(.26)(.65) \\
+(.96)(.65)(.26) &amp; .65^2
+\end{pmatrix} = \begin{pmatrix}
+.067 &amp; .162\\
+.162 &amp; .423
+\end{pmatrix}\]</span></p>
+</section>
+<section id="create-covariance-matrix-for-the-massmvrnorm-argument-in-r" class="level1">
+<h1>Create covariance matrix for the <code>MASS::mvrnorm</code> argument in R</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define and store covariances</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>my_cov <span class="ot">&lt;-</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  .<span class="dv">96</span> <span class="sc">*</span> .<span class="dv">26</span> <span class="sc">*</span> .<span class="dv">65</span> <span class="co"># log of correlation times hlog_sd times wlog_sd</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># use the matrix function to define our sigma</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># this matrix corresponds to the vlaues calculated "by hand" above </span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>my_sigma <span class="ot">&lt;-</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(.<span class="dv">26</span><span class="sc">^</span><span class="dv">2</span>, my_cov, </span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>           my_cov, .<span class="dv">65</span><span class="sc">^</span><span class="dv">2</span>), </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>my_sigma          <span class="co"># print the matrix</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        [,1]    [,2]
+[1,] 0.06760 0.16224
+[2,] 0.16224 0.42250</code></pre>
+</div>
+</div>
+<section id="some-notes-about-the-matrix-function" class="level2">
+<h2 class="anchored" data-anchor-id="some-notes-about-the-matrix-function">Some notes about the <code>matrix</code> function</h2>
+<ul>
+<li>The first argument is a vector of values, which we created using <code>c()</code>.</li>
+<li>The <code>ncol</code> argument specifies how many columns the matrix should have.</li>
+<li><code>matrix</code> fills the elements of the matrix by column by column, rather than row by row.</li>
+<li>You can change this behaviour if desired by changing the byrow argument to <code>byrow = TRUE</code>.</li>
+</ul>
+</section>
+</section>
+<section id="qa-and-discussion-break-1" class="level1">
+<h1>Q&amp;A and discussion break</h1>
+<p><img src="images/biometric-fail.jpg" class="img-fluid"></p>
+</section>
+<section id="simulate-data" class="level1 smaller">
+<h1 class="smaller">Simulate data</h1>
+<p>OK, so now we have <code>my_sigma</code> we’re ready to use <code>MASS::mvrnorm</code>. Let’s test it by creating 6 synthetic humans.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>log_ht_wt <span class="ot">&lt;-</span>                           <span class="co"># create object log_ht_wt</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="at">n =</span> <span class="dv">6</span>,                 <span class="co"># our 6 synthetic humans </span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">mu =</span> <span class="fu">c</span>(<span class="at">height =</span> <span class="fl">4.11</span>,  <span class="co"># log mean of height </span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">weight =</span> <span class="fl">4.74</span>), <span class="co"># log mean of weight</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">Sigma =</span> my_sigma)      <span class="co"># our positive-definitive matrix</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># view the output</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>log_ht_wt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       height   weight
+[1,] 4.046250 4.964822
+[2,] 3.946070 4.613247
+[3,] 4.582814 5.702836
+[4,] 4.520118 5.680369
+[5,] 4.134257 4.573500
+[6,] 4.427730 5.442189</code></pre>
+</div>
+</div>
+<hr>
+<ul>
+<li><code>MASS::mvrnorm</code> returns a matrix with a row for each simulated human, with the first column representing the log height and the second representing the log weight.</li>
+<li>But the log heights and weights are not very useful to us, so let’s transform them back using the <code>exp()</code>, which is the inverse of <code>log()</code> transform.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(log_ht_wt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       height   weight
+[1,] 57.18263 143.2831
+[2,] 51.73166 100.8109
+[3,] 97.78919 299.7163
+[4,] 91.84645 293.0574
+[5,] 62.44320  96.8826
+[6,] 83.74115 230.9473</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remember height is measured in inches</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># weight is measured in pounds</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+<ul>
+<li>Note, that there will be some unusual observations generated, with strangely high or low values for height and weight.</li>
+<li>However, you can rest easy knowing that the weight/height relationship will be preserved.</li>
+</ul>
+</section>
+<section id="plotting-simulated-data-against-actual-data" class="level1 smaller">
+<h1 class="smaller">Plotting Simulated Data against actual data</h1>
+<ul>
+<li>Let’s simulate a group of 500 humans, convert their values from the log space to the real space (e.g., inches and pounds), and plot a comparison between the original data and our simulated data.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate new humans</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>handw_sim <span class="ot">&lt;-</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="at">n =</span> <span class="dv">500</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">mu =</span> <span class="fu">c</span>(<span class="at">height_in =</span> <span class="fl">4.11</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                       <span class="at">weight_lbs =</span> <span class="fl">4.74</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">Sigma =</span> my_sigma) <span class="sc">%&gt;%</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>() <span class="sc">%&gt;%</span>                     <span class="co"># back-transform from log space to real space</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span>               <span class="co"># convert from matrix into data table</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"simulated"</span>)    <span class="co"># vector labelling data as simulated</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># add type column labelling handw as "real"</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>handw_real <span class="ot">&lt;-</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  handw <span class="sc">%&gt;%</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">"real"</span>) <span class="co"># add type column to original dataset, with value "real"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># combine handw_real with new_humans</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>all_data <span class="ot">&lt;-</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(handw_real, <span class="co"># bind the data by their rows</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        handw_sim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="plot-real-vs-simulated-heights-and-weights-data" class="level1">
+<h1>Plot Real vs Simulated heights and Weights Data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the data</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(all_data,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> height_in, </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> weight_lbs)) <span class="sc">+</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> type), </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">alpha =</span> .<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Data-simulation-in-R_demo_files/figure-html/plot%20sim%20data-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="save-the-simulated-dataset" class="level1 larger">
+<h1 class="larger">Save the simulated dataset</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write data as a csv into "data" folder</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(all_data, <span class="st">"data/handw_all.csv"</span>)  <span class="co"># all of the data</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(handw_sim, <span class="st">"data/handw_sim.csv"</span>) <span class="co"># just the simulated data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>We now have a simulated dataset to play with that was built from a real relationship expressed by real data.</li>
+<li><strong>You could pick a popular paper from your research area to do the same.</strong></li>
+</ul>
+</section>
+<section id="round-up-and-conclusion" class="level1">
+<h1>Round-up and conclusion</h1>
+<ul>
+<li>This has been a whistle-stop tour of R, but hopefully you get a sense of how the syntax is formatted.</li>
+<li>In the process of showing you how to simulate bivariate data you become more familiar with covariance and matrix calculations.</li>
+<li>This is just an example of how data simulation can develop statistical expertise.</li>
+<li>The end result is something you can use for own research, to do a dummy run of your proposed analysis, or explore other analyses for your data.</li>
+</ul>
+<hr>
+<p><img src="images/experiment-results.jpg" class="img-fluid"></p>
+</section>
+<section id="thank-you" class="level1">
+<h1>Thank you!</h1>
+<p><em>Inspiration for today’s session on Data Simulation:</em><a href="https://psyteachr.github.io/stat-models-v1/correlation-and-regression.html">Learning Statistical Models Through Simulation in R: Correlation and Regression</a></p>
+<p><a href="https://simsummerschool.github.io/">PsyPag &amp; MSCP-Section Simulation Summer School</a></p>
+<p><a href="https://debruine.github.io/data-sim-workshops/">Data Simulation Workshops</a></p>
+<p><a href="https://www.geogebra.org/m/RRprACv4">Heights and weights dataset</a></p>
+</section>
+<section id="references" class="level1 unnumbered">
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Hardin_2015" class="csl-entry" role="listitem">
+Hardin, J., R. Hoerl, Nicholas J. Horton, D. Nolan, B. Baumer, O. Hall-Holt, P. Murrell, et al. 2015. <span>“Data Science in Statistics Curricula: Preparing Students to <span>‘Think with Data’</span>.”</span> <em>The American Statistician</em> 69 (4): 343–53. <a href="https://doi.org/10.1080/00031305.2015.1077729">https://doi.org/10.1080/00031305.2015.1077729</a>.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
